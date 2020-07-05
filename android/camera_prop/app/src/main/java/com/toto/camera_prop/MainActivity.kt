@@ -3,11 +3,12 @@ package com.toto.camera_prop
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.toto.pro_library.TutorialView
+import com.toto.pro_library.camera2.Camera2GLSurfaceView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var graphicsView: TutorialView
+    lateinit var graphicsView: Camera2GLSurfaceView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 //        sample_text.text = stringFromJNI()
 
 
-        graphicsView = TutorialView(application)
+        graphicsView = Camera2GLSurfaceView(this)
         setContentView(graphicsView)
     }
 

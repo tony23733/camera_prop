@@ -1,7 +1,9 @@
 package com.toto.pro_library
 
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.opengl.GLSurfaceView
+import com.toto.pro_library.render.BaseRender
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext
@@ -17,16 +19,22 @@ class TutorialView(context: Context?): GLSurfaceView(context) {
     var sampleSize = 4;
     var stencilSize = 0;
 
+    private var renderer: Renderer
+
+    val oesTextureID: Int get() = renderer.renderer.oesTextureID
+    var surfaceTexture: SurfaceTexture? = null
+
     init {
         setEGLContextFactory(ContextFactory())
         setEGLConfigChooser(ConfigChooser())
-        setRenderer(Renderer())
+        renderer = Renderer()
+        setRenderer(renderer)
     }
 
     class ContextFactory: GLSurfaceView.EGLContextFactory {
         override fun createContext(egl: EGL10, display: EGLDisplay, eglConfig: EGLConfig): EGLContext {
             val EGL_CONTEXT_CLIENT_VERSION = 0x3098
-            val attrib_list: IntArray = intArrayOf(EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE)
+            val attrib_list: IntArray = intArrayOf(EGL_CONTEXT_CLIENT_VERSION, 3, EGL10.EGL_NONE)
             val context: EGLContext = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list)
             return context
         }
@@ -94,16 +102,24 @@ class TutorialView(context: Context?): GLSurfaceView(context) {
     }
 
     class Renderer: GLSurfaceView.Renderer {
+        val renderer: BaseRender = BaseRender()
+        var surfaceTexture: SurfaceTexture? = null
+        private val transformMatrix = FloatArray(16)
+
         override fun onDrawFrame(gl: GL10?) {
-            NativeLibrary.step()
+//            NativeLibrary.step()
+            surfaceTexture?.updateTexImage()
+            surfaceTexture?.getTransformMatrix(transformMatrix)
+            renderer.step(transformMatrix)
         }
 
         override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-            NativeLibrary.init(width, height)
+//            NativeLibrary.init(width, height)
+            renderer.initViewport(width, height)
         }
 
         override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-            // null
+            renderer.init()
         }
 
     }

@@ -1,8 +1,8 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include <GLES3/gl3.h>
+//#include <GLES3/gl3ext.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -15,6 +15,7 @@
 
 /* [Vertex source] */
 static const char glVertexShader[] =
+        "#version 300 es"
         "attribute vec4 vPosition;\n"
         "void main()\n"
         "{\n"
@@ -24,6 +25,7 @@ static const char glVertexShader[] =
 
 /* [Fragment source] */
 static const char glFragmentShader[] =
+        "#version 300 es"
         "precision mediump float;\n"
         "void main()\n"
         "{\n"
