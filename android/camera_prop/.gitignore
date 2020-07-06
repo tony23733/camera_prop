@@ -14,4 +14,8 @@
 .cxx
 
 # IntelliJ
-.idea/
+.idea
+
+# vscode
+.settings
+.project
