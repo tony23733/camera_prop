@@ -25,7 +25,7 @@ import kotlin.math.abs
 
 
 class Camera2Proxy @TargetApi(Build.VERSION_CODES.M) constructor(private val activity: Activity) {
-    private var cameraId = CameraCharacteristics.LENS_FACING_FRONT // 要打开的摄像头ID
+    private var cameraId = CameraCharacteristics.LENS_FACING_BACK // 要打开的摄像头ID
     private lateinit var previewSize: Size // 预览大小
     private val cameraManager: CameraManager // 相机管理者
     private lateinit var cameraCharacteristics: CameraCharacteristics // 相机属性

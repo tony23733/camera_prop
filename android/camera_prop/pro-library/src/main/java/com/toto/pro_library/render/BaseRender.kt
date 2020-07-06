@@ -3,10 +3,12 @@ package com.toto.pro_library.render
 import android.content.Context
 import android.opengl.GLES11Ext
 import android.opengl.GLES20.*
+import android.util.Log
 import androidx.core.graphics.translationMatrix
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.util.*
 
 
 class BaseRender {
@@ -21,15 +23,15 @@ class BaseRender {
     var uTextureMatrixLocation = -1
     var uTextureSamplerLocation = -1
 
-    val vertexShaderString = "attribute vec4 a_Position;\n" +
-            "uniform mat4 u_TextureMatrix;\n" +
-            "attribute vec4 a_TextureCoordinate;\n" +
-            "varying vec2 v_TexCoord;\n" +
-            "void main()\n" +
-            "{\n" +
-            "  v_TexCoord = (u_TextureMatrix * a_TextureCoordinate).xy;\n" +
-            "  gl_Position = a_Position;\n" +
-            "}"
+//    val vertexShaderString = "attribute vec4 a_Position;\n" +
+//            "uniform mat4 u_TextureMatrix;\n" +
+//            "attribute vec4 a_TextureCoordinate;\n" +
+//            "varying vec2 v_TexCoord;\n" +
+//            "void main()\n" +
+//            "{\n" +
+//            "  v_TexCoord = (u_TextureMatrix * a_TextureCoordinate).xy;\n" +
+//            "  gl_Position = a_Position;\n" +
+//            "}"
 //    val fragmentShaderString = "#extension GL_OES_EGL_image_external : require\n" +
 //            "precision mediump float;\n" +
 //            "uniform samplerExternalOES u_TextureSampler;\n" +
@@ -41,6 +43,15 @@ class BaseRender {
 //            "  gl_FragColor = vec4(fGrayColor, fGrayColor, fGrayColor, 1.0);\n" +
 //            "}\n"
 
+    val vertexShaderString = "" +
+            "attribute vec4 a_Position;" +
+            "attribute vec2 a_TextureCoordinate;" +
+            "varying vec2 textureCoordinate;" +
+            "void main()" +
+            "{"+
+            "gl_Position = a_Position;"+
+            "textureCoordinate = a_TextureCoordinate;" +
+            "}";
     val fragmentShaderString = (""+
     "#extension GL_OES_EGL_image_external : require\n" +
     "precision mediump float;" +
@@ -54,16 +65,25 @@ class BaseRender {
     private lateinit var vertexCoordinateBuffer: FloatBuffer
 
     private val vertexPositionData: FloatArray = floatArrayOf(
-        -1f, -1f,
-        1f, -1f,
-        -1f, 1f,
-        1f, 1f
+        -1f, -1f, // 左下
+        1f, -1f, // 右下
+        1f, 1f, // 右上
+        -1f, 1f // 左上
     )
 
-    private var vertexCoordinateData: FloatArray = floatArrayOf(
+    // 后置摄像头，需左下、右上对折翻转
+    private var vertexCoordinateDataBack: FloatArray = floatArrayOf(
         1f, 1f,
         1f, 0f,
+        0f, 0f,
+        0f, 1f
+    )
+
+    // 前置摄像头，
+    private var vertexCoordinateDataFront: FloatArray = floatArrayOf(
         0f, 1f,
+        0f, 0f,
+        1f, 0f,
         1f, 1f
     )
 
@@ -87,9 +107,9 @@ class BaseRender {
         program = linkProgram(vertexShader, fragmentShader)
 
         aPositionLocation = glGetAttribLocation(program, "a_Position")
-        uTextureMatrixLocation = glGetUniformLocation(program, "u_TextureMatrix")
+//        uTextureMatrixLocation = glGetUniformLocation(program, "u_TextureMatrix")
         aTextureCoordLocation = glGetAttribLocation(program, "a_TextureCoordinate")
-        uTextureSamplerLocation = glGetUniformLocation(program, "u_TextureSampler")
+//        uTextureSamplerLocation = glGetUniformLocation(program, "u_TextureSampler")
     }
 
     private fun createTexture() {
@@ -109,24 +129,25 @@ class BaseRender {
             .asFloatBuffer()
         vertexPositionBuffer.put(vertexPositionData).position(0)
 
-        vertexCoordinateBuffer = ByteBuffer.allocateDirect(vertexCoordinateData.size * 4)
+        vertexCoordinateBuffer = ByteBuffer.allocateDirect(vertexCoordinateDataBack.size * 4)
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer()
-        vertexCoordinateBuffer.put(vertexCoordinateData).position(0)
+        vertexCoordinateBuffer.put(vertexCoordinateDataFront).position(0)
     }
 
     private fun renderFrame(transformMatrix: FloatArray?) {
         if (transformMatrix == null) {
             return
         }
-        glClearColor(1f, 1f, 1f, 1f)
+        Log.e("test", Arrays.deepToString(arrayOf(transformMatrix)))
+        glClearColor(1f, 0f, 1f, 1f)
         glClear(GL_COLOR_BUFFER_BIT)
         glUseProgram(program)
 
         glActiveTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES)
         glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, oesTextureID)
-        glUniform1i(uTextureSamplerLocation, 0)
-        glUniformMatrix4fv(uTextureMatrixLocation, 1, false, transformMatrix, 0)
+//        glUniform1i(uTextureSamplerLocation, 0)
+//        glUniformMatrix4fv(uTextureMatrixLocation, 1, false, transformMatrix, 0)
 
         vertexPositionBuffer.position(0)
         vertexCoordinateBuffer.position(0)
@@ -135,7 +156,7 @@ class BaseRender {
         glEnableVertexAttribArray(aPositionLocation)
         glEnableVertexAttribArray(aTextureCoordLocation)
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
 
         glDisableVertexAttribArray(aPositionLocation)
         glDisableVertexAttribArray(aTextureCoordLocation)

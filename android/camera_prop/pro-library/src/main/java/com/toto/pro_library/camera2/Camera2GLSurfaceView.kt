@@ -9,6 +9,7 @@ import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
+import android.view.SurfaceHolder
 import com.toto.pro_library.render.BaseRender
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -58,6 +59,12 @@ class Camera2GLSurfaceView(context: Context?, attrs: AttributeSet?) :
             setAspectRatio(previewHeight, previewWidth)
         }
         renderer.initViewport(width, height)
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+        super.surfaceDestroyed(holder)
+
+        cameraProxy.releaseCamera()
     }
 
     override fun onDrawFrame(gl: GL10) {
