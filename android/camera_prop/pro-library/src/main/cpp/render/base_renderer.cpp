@@ -10,17 +10,38 @@ namespace cameraprop {
     constexpr float BaseRenderer::vertexCoordinateDataFront[];
 
     void BaseRenderer::init() {
+        assignShaderString();
         createProgram();
         createTexture();
-        createBuffer();
+
+        start = last = end = clock();
     }
 
     void BaseRenderer::initViewport(int width, int height) {
         glViewport(0, 0, width, height);
     }
 
+    void BaseRenderer::leave() {
+        glDetachShader(program, vertexShader);
+        glDeleteShader(vertexShader);
+        glDetachShader(program, fragmentShader);
+        glDeleteShader(fragmentShader);
+        glUseProgram(0);
+        glDeleteProgram(program);
+        vertexShader = fragmentShader = program = -1;
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+        glDeleteTextures(1, &oesTextureID);
+    }
+
     void BaseRenderer::step(float *transformMatrix) {
-        renderFrame(transformMatrix);
+        end = clock();
+        renderFrame();
+
+        last = end;
+    }
+
+    void BaseRenderer::assignShaderString() {
+
     }
 
     void BaseRenderer::createProgram() {
@@ -45,11 +66,7 @@ namespace cameraprop {
         oesTextureID = tex[0];
     }
 
-    void BaseRenderer::createBuffer() {
-
-    }
-
-    void BaseRenderer::renderFrame(float transformMatrix[]) {
+    void BaseRenderer::renderFrame() {
         glClearColor(1, 0, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(program);

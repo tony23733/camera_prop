@@ -14,13 +14,11 @@ extern "C" {
     JNIEXPORT void JNICALL
     Java_com_toto_pro_1library_jni_1call_CpLibrary_initJNI(JNIEnv *env, jobject thiz, jint width,
     jint height) {
-        LOGI("----- render frame");
         renderer.init();
     }
 
     JNIEXPORT void JNICALL
     Java_com_toto_pro_1library_jni_1call_CpLibrary_renderFrameJNI(JNIEnv *env, jobject thiz) {
-        LOGI("----- render frame");
         renderer.step(nullptr);
     }
 };

@@ -12,18 +12,27 @@
 namespace cameraprop {
     class BaseRenderer {
     public:
-        void init();
-        void initViewport(int width, int height);
+        virtual void init();
+
+        virtual void initViewport(int width, int height);
+
+        virtual void leave();
         void step(float transformMatrix[]);
 
     protected:
-        void createProgram();
+        virtual void assignShaderString();
+        virtual void createProgram();
         void createTexture();
-        void createBuffer();
+        virtual void renderFrame();
+        /**
+         * 获取此渲染器启动至现在的时间消耗，单位s。
+         * @return 时间消耗，单位s。
+         */
+        inline float getElapseTime() { return (float)((end - start) / CLOCKS_PER_SEC); }
+        inline float getDeltaTime() { return (float)((end - last) / CLOCKS_PER_SEC); }
 
-        virtual void renderFrame(float transformMatrix[]);
-        GLuint loadShader(GLenum type, const char* shaderSource);
-        GLuint linkProgram(GLuint vertShader, GLuint fragShader);
+        static GLuint loadShader(GLenum type, const char* shaderSource);
+        static GLuint linkProgram(GLuint vertShader, GLuint fragShader);
 
     protected:
         int vertexShader = -1;
@@ -32,8 +41,6 @@ namespace cameraprop {
         GLuint oesTextureID = 0;
         GLuint aPositionLocation = 0;
         GLuint aTextureCoordLocation = 0;
-        GLuint uTextureMatrixLocation = 0;
-        GLuint uTextureSamplerLocation = 0;
 
         const char* vertexShaderString = "\n"
                                          "attribute vec4 a_Position;\n"
@@ -71,6 +78,9 @@ namespace cameraprop {
             1.0f, 0.0f,
             1.0f, 1.0f
         };
+
+    private:
+        clock_t start, last, end;
     };
 }
 
