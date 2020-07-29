@@ -31,9 +31,10 @@ namespace cameraprop {
         glEnableVertexAttribArray(aTextureCoordLocation);
 
         // 设置参数
-        glUniform1f(uTimeLocation, 0.8);
+        LOGI("-----SoulColorRenderer::renderFrame  time = %f", getElapseTime());
+        glUniform1f(uTimeLocation, getElapseTime());
         glUniform1f(uDurationLocation, 2);
-        glUniform2f(uScaleLocation, 2, 1, 2);
+        glUniform2f(uScaleLocation, 1, 2);
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 

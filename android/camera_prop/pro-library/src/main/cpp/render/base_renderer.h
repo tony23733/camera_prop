@@ -9,15 +9,16 @@
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 
+#include "cplog.h"
+
 namespace cameraprop {
     class BaseRenderer {
     public:
         virtual void init();
-
         virtual void initViewport(int width, int height);
-
         virtual void leave();
         void step(float transformMatrix[]);
+        GLuint getOesTextureID() { return oesTextureID; }
 
     protected:
         virtual void assignShaderString();

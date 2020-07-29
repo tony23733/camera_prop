@@ -67,6 +67,7 @@ namespace cameraprop {
     }
 
     void BaseRenderer::renderFrame() {
+        LOGI("-----BaseRenderer::renderFrame.");
         glClearColor(1, 0, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(program);

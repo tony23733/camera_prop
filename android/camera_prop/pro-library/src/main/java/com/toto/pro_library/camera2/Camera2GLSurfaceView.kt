@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import com.toto.pro_library.render.BaseRender
+import com.toto.pro_library.render.RenderManager
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.sqrt
@@ -20,7 +21,8 @@ class Camera2GLSurfaceView(context: Context?, attrs: AttributeSet?) :
     GLSurfaceView(context, attrs), GLSurfaceView.Renderer, OnFrameAvailableListener {
     private lateinit var cameraProxy: Camera2Proxy
     private lateinit var surfaceTexture: SurfaceTexture
-    private lateinit var renderer: BaseRender
+//    private lateinit var renderer: BaseRender
+    private lateinit var renderManager: RenderManager;
     private var ratioWidth = 0
     private var ratioHeight = 0
     private var oldDistance = 0f
@@ -36,9 +38,11 @@ class Camera2GLSurfaceView(context: Context?, attrs: AttributeSet?) :
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        renderer = BaseRender()
-        renderer.init()
-        oesTextureId = renderer.oesTextureID
+//        renderer = BaseRender()
+//        renderer.init()
+        renderManager = RenderManager();
+        renderManager.init(0);
+        oesTextureId = renderManager.getOesTextureID();
         surfaceTexture = SurfaceTexture(oesTextureId)
         surfaceTexture.setOnFrameAvailableListener(this)
         cameraProxy.setPreviewSurface(surfaceTexture)
@@ -58,7 +62,7 @@ class Camera2GLSurfaceView(context: Context?, attrs: AttributeSet?) :
         } else {
             setAspectRatio(previewHeight, previewWidth)
         }
-        renderer.initViewport(width, height)
+        renderManager.initViewport(width, height)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -74,7 +78,7 @@ class Camera2GLSurfaceView(context: Context?, attrs: AttributeSet?) :
 //        mDrawer.draw(oesTextureId, cameraProxy.isFrontCamera)
         val transformMatrix = FloatArray(16)
         surfaceTexture.getTransformMatrix(transformMatrix)
-        renderer.step(transformMatrix)
+        renderManager.renderFrame(transformMatrix)
     }
 
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
